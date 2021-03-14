@@ -21,6 +21,12 @@ class Login(Resource):
       return jsonify(access_token=access_token, refresh_token=refresh_token)
     return {'message': 'Invalid credentials.'}, 401
     
+class Logout(Resource):
+  @jwt_required()
+  def post(self):
+    #TODO: Expired tokens.
+    pass
+    
 class Register(Resource):
   def post(self):
     data = _parser.parse_args()

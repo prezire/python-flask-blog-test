@@ -6,7 +6,8 @@ class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   username = db.Column(db.String(100))
   password = db.Column(db.String(100))
-  stores = db.relationship('Store', lazy=True)
+  posts = db.relationship('Post', lazy=True)
+  comments = db.relationship('Comment', lazy=True)
   
   def __init__(self, username:str, password:str):
     self.username = username
@@ -22,20 +23,21 @@ class User(db.Model):
     db.session.commit()
     return True
     
-  @classmethod
-  def find_by_username(cls, username:str):
-    return cls.query.filter_by(username=username).first()
+  @staticmethod
+  def find_by_username(username:str):
+    return User.query.filter_by(username=username).first()
     
   @classmethod
-  def all(cls):
-    return cls.query.all()
+  def find_post_by_id(cls, post_id:str):
+    return cls.posts.query.filter_by(id=post_id).first()
     
-  @classmethod
-  def find(cls, id:int):
-    return cls.query.filter_by(id=id).first()
+  @staticmethod
+  def all():
+    return User.query.all()
+    
+  @staticmethod
+  def find(id:int):
+    return User.query.filter_by(id=id).first()
     
   def json(self):
-    stores = None
-    if self.stores:
-      stores = [store.json() for store in self.stores]
-    return {'id': self.id, 'username': self.username, 'stores': stores}
+    return {'id': self.id, 'username': self.username}
