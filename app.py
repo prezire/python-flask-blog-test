@@ -3,7 +3,6 @@ from flask import Flask, render_template, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from resources.users import Register as UserRegister, User, UserList, Login, Logout
-from resources.items import Item, ItemList
 from resources.posts import Post, PostList
 from resources.comments import Comment, CommentList
 from datetime import timedelta
@@ -24,7 +23,6 @@ api = Api(app)
 api.add_resource(CommentList, '/comments')
 api.add_resource(Comment, '/comment/<int:id>')
 
-api.add_resource(Post, '/post')
 api.add_resource(PostList, '/posts')
 api.add_resource(Post, '/post/<int:id>')
 

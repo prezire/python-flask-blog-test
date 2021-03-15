@@ -12,7 +12,7 @@ class Post(db.Model):
   
   comments = db.relationship('Comment', lazy='dynamic')
   
-  def __init__(self, name:str, description:str=None, user_id:int):
+  def __init__(self, name:str, user_id:int, description:str=None):
     self.name = name
     self.user_id = user_id
     self.description = description

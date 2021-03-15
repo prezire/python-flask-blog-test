@@ -11,8 +11,8 @@ class Comment(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
   user = db.relationship('User')
   
-  page_id = db.Column(db.Integer, db.ForeignKey('pages.id'))
-  page = db.relationship('Page')
+  post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+  post = db.relationship('Post')
   
   #Self-ref parent.
   comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'))
