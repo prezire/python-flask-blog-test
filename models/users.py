@@ -1,4 +1,3 @@
-from flask import json
 from .dbs import db
 from .timestamp import SqlDateTime, Timestamp
 
@@ -10,14 +9,14 @@ class User(db.Model):
   email = db.Column(db.String(100))
   password = db.Column(db.String(100))
   
-  created_on = Timestamp.created_on
-  updated_on = Timestamp.updated_on
+  now = db.func.now()
+  created_on = db.Column(db.DateTime, server_default=now)
+  updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
   
   posts = db.relationship('Post', lazy=True)
   comments = db.relationship('Comment', lazy=True)
   
   def __init__(self, name:str, email:str, password:str):
-    super().__init__()
     self.name = name
     self.email = email
     self.password = password
@@ -49,4 +48,6 @@ class User(db.Model):
     return User.query.filter_by(id=id).first()
     
   def json(self):
-    return {'id': self.id, 'name': self.name, 'email': self.email, 'created_on': SqlDateTime.fmt(self.created_on), 'updated_on': SqlDateTime.fmt(self.updated_on)}
+    d = {'id': self.id, 'name': self.name, 'email': self.email}
+    d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on))
+    return d

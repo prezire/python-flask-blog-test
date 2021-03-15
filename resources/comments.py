@@ -5,14 +5,12 @@ from authorizations.gates import Delete
 from acls.messages import Permission
 from flask import abort
 
-class Comment(Resource):    
-  @staticmethod
-  def __req_args():
-    parser = reqparse.RequestParser()
-    parser.add_argument('price', type=float,required=True)
-    parser.add_argument('store_id', type=int,required=True)
-    return parser.parse_args()
-    
+parser = reqparse.RequestParser()
+parser.add_argument('body', type=str,required=True, help='The body field is required.')
+parser.add_argument('parent_id', type=int,required=True, help='The parent_id field is required.')
+parser.add_argument('creator_id', type=int,required=True, help='The creator_id field is required.')
+
+class Comment(Resource):   
   @jwt_required()
   def get(self, name:str):
     comment = CommentModel.find_by_name(name)
@@ -22,7 +20,7 @@ class Comment(Resource):
   
   @jwt_required()
   def post(self, name:str):
-    data = self.__req_args()
+    data = _parser.parse_args()
     comment = CommentModel(name, data['price'], data['store_id']).save()
     return {'comment': comment.json()}
     
@@ -38,7 +36,7 @@ class Comment(Resource):
   @jwt_required()
   def put(self, name:str):
     comment = CommentModel.find_by_name(name)
-    data = self.__req_args()
+    data = _parser.parse_args()
     price = data['price']
     store_id = data['store_id']
     stat = 'created'

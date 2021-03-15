@@ -20,17 +20,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-api.add_resource(CommentList, '/comments')
-api.add_resource(Comment, '/comment/<int:id>')
+api.add_resource(PostList, '/api/posts')
+api.add_resource(Post, '/api/posts/<int:id>')
 
-api.add_resource(PostList, '/posts')
-api.add_resource(Post, '/post/<int:id>')
+api.add_resource(CommentList, '/api/comments')
+api.add_resource(Comment, '/api/comment/<int:id>')
 
-api.add_resource(UserRegister, '/register')
+api.add_resource(UserRegister, '/api/register')
 api.add_resource(User, '/user/<int:id>')
 api.add_resource(UserList, '/users')
-api.add_resource(Login, '/login')
-api.add_resource(Logout, '/logout')
+api.add_resource(Login, '/api/login')
+api.add_resource(Logout, '/api/logout')
 
 api.init_app(app)
 

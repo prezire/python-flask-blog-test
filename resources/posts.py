@@ -55,6 +55,14 @@ class Post(Resource):
     return {'message': 'No posts to delete.'}, 404
 
 class PostList(Resource):
-  @jwt_required()
-  def get(self):
+  @staticmethod
+  def all():
     return {'posts': [s.json() for s in PostModel.all()]}
+    
+  #Guest.
+  def get(self):
+    return PostList.all()
+    
+  @jwt_required()
+  def post(self):
+    return PostList.all()

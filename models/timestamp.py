@@ -1,9 +1,13 @@
 from .dbs import db
 
 class Timestamp:
-  now = db.func.now()
-  created_on = db.Column(db.DateTime, server_default=now)
-  updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
+  @staticmethod
+  def json(**dates):
+    d = {'created_on': SqlDateTime.fmt(dates['created_on']), 'updated_on': SqlDateTime.fmt(dates['updated_on'])}
+    if 'deleted_on' in dates and dates['deleted_on']:
+      d.update(SqlDateTime.fmt(dates['deleted_on']))
+    return d
+    
   
 class SqlDateTime:  
   @staticmethod

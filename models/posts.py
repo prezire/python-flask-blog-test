@@ -1,21 +1,27 @@
 from .dbs import db
+from .timestamp import SqlDateTime, Timestamp
 
 class Post(db.Model):
   __tablename__ = 'posts'
   
   id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(80))
-  description = db.Column(db.Text(80))
+  title = db.Column(db.String(80))
+  content = db.Column(db.Text(80))
+  
+  now = db.func.now()
+  created_on = db.Column(db.DateTime, server_default=now)
+  updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
+  deleted_on = db.Column(db.DateTime)
   
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
   user = db.relationship('User')
   
   comments = db.relationship('Comment', lazy='dynamic')
   
-  def __init__(self, name:str, user_id:int, description:str=None):
-    self.name = name
+  def __init__(self, title:str, user_id:int, content:str=None):
+    self.title = title
     self.user_id = user_id
-    self.description = description
+    self.content = content
     
   @staticmethod
   def all(cls):
@@ -35,7 +41,8 @@ class Post(db.Model):
   def find(id:int):
     return Post.query.filter_by(id=id).first()
   
-  def json(self, owner:bool=False, comments:bool=False):
-    u = self.user
-    user = {'id': u.id, 'username': u.username}
-    return {'id': self.id, 'name': self.name, 'owner': user}
+  def json(self):
+    slug = self.title.lower().replace(' ', '-')
+    d = {'id': self.id, 'title': self.title, 'slug': slug, 'content': self.content}
+    d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on, deleted_on=self.deleted_on))
+    return d
