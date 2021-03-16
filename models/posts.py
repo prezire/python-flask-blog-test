@@ -6,7 +6,9 @@ class Post(db.Model):
   
   id = db.Column(db.Integer, primary_key=True)
   title = db.Column(db.String(80))
-  content = db.Column(db.Text(80))
+  content = db.Column(db.Text())
+  photo_original_filename = db.Column(db.String(500))
+  photo_system_filename = db.Column(db.String(500))
   
   now = db.func.now()
   created_on = db.Column(db.DateTime, server_default=now)
@@ -18,7 +20,7 @@ class Post(db.Model):
   
   comments = db.relationship('Comment', lazy='dynamic')
   
-  def __init__(self, title:str, user_id:int, content:str=None):
+  def __init__(self, title:str, content:str, user_id:int):
     self.title = title
     self.user_id = user_id
     self.content = content

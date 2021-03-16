@@ -1,57 +1,74 @@
-from flask_jwt_extended import jwt_required, get_current_user#, current_identity
+from flask_jwt_extended import jwt_required, get_current_user
 from flask_restful import Resource, reqparse
 from authorizations.gates import Delete
 from acls.messages import Permission
 from authorizations.gates import Delete
 from acls.messages import Permission
 from models.posts import Post as PostModel
+import os
+from flask import request
+from werkzeug.utils import secure_filename
+from werkzeug import FileStorage
+import hashlib
+
+_parser = reqparse.RequestParser()
+_parser.add_argument('title', type=str, required=True, help='The title field is required.')
+_parser.add_argument('content', type=str, required=True, help='The content field is required.')
+
+class File:
+  @staticmethod
+  def upload(post):
+    _parser.add_argument('photo', type=FileStorage, location='files')
+    data = _parser.parse_args()
+    photo = data['photo']
+    if photo:
+      photo_original_filename = secure_filename(photo.filename)
+      ext = photo_original_filename.filename.split('.')[0]
+      photo_system_filename = hashlib.sha224(photo_original_filename).hexdigest() + '.' + ext
+      uploaded_file.save('./uploads/posts/' + photo_system_filename)
+      post.photo_original_filename = photo_original_filename
+      post.photo_system_filename = photo_system_filename
+      post.save()
 
 class Post(Resource):
-  def __uid(self) -> int:
+  def __user_id(self) -> int:
     return get_current_user()['payload']['sub']
-  
-  @staticmethod
-  def __name_arg():
-    p = reqparse.RequestParser()
-    p.add_argument('name', required=True)
-    return p.parse_args()['name']
-  
-  @jwt_required()
-  def get(self):
-    post = PostModel.find_by_name(self.__name_arg())
-    if post:
-      post = post.json()
-    return {'post': post}, 200 if post else 404
   
   @jwt_required()
   def post(self):
-    return {'post': PostModel(self.__name_arg(), self.__uid()).save().json()}
+    data = _parser.parse_args()
+    title = data['title']
+    content = data['content']
+    p = PostModel(title, content, self.__user_id()).save()
+    if p:
+      File.upload(p)
+      return {'post': p.json()}
+    return {'message': 'Error creating a new post.'}, 400
   
   @jwt_required()
-  def put(self):
-    p = reqparse.RequestParser()
-    p.add_argument('old_name', required=True)
-    p.add_argument('new_name', required=True)
-    args = p.parse_args()
-    old_name = args['old_name']
-    new_name = args['new_name']
-    post = PostModel.find_by_name(old_name)
+  def patch(self, post:int):
+    data = _parser.parse_args()
+    title = data['title']
+    content = data['content']
+    p = PostModel.find(post)
     stat = 'created'
-    if post:
-      post.name = new_name
+    if p:
+      p.title = title
+      p.content = content
+      File.upload(p)
       stat = 'updated'
     else:
-      post = PostModel(old_name, self.__uid())
-    post.save()
-    return {stat: post.json()}
+      p = PostModel(title, content, self.__user_id())
+    p.save()
+    return {stat: p.json()}
   
   @jwt_required()
-  def delete(self):
+  def delete(self, post:int):
     if not Delete.can():
       return Permission.denied()
-    post = PostModel.find_by_name(self.__name_arg())
-    if post:
-      return {'deleted': post.delete()}
+    p = PostModel.find(post)
+    if p:
+      return {'deleted': p.delete()}
     return {'message': 'No posts to delete.'}, 404
 
 class PostList(Resource):
