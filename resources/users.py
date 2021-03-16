@@ -3,6 +3,7 @@ from flask import jsonify, json
 from flask_restful import Resource, reqparse
 from models.users import User as UserModel
 from models.timestamp import SqlDateTime
+from models.tokens import BlackList
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
 from exceptions.messages import unprocessable_entity as unproc
 from datetime import timedelta, datetime
@@ -30,8 +31,8 @@ class Login(Resource):
 class Logout(Resource):
   @jwt_required()
   def post(self):
-    #TODO: Expired tokens.
-    pass
+    token = ''
+    return {'success': BlackList(token).save()}
     
 class Register(Resource):
   def post(self):

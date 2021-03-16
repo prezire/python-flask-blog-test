@@ -4,7 +4,6 @@ class Comment(db.Model):
   __tablename__ = 'comments'
   
   id = db.Column(db.Integer, primary_key=True)
-  title = db.Column(db.String(100))
   body = db.Column(db.Text())
   
   #OP.
@@ -21,8 +20,11 @@ class Comment(db.Model):
   #Comment replies.
   comments = db.relationship('Comment')
   
-  def __init__(self, title:str, body:str, parent_id:int):
-    self.title = title
+  now = db.func.now()
+  created_on = db.Column(db.DateTime, server_default=now)
+  updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
+  
+  def __init__(self, body:str, parent_id:int=None:
     self.body = body
     self.parent_id = parent_id
     
@@ -45,4 +47,4 @@ class Comment(db.Model):
     return Comment.query.all()
   
   def json(self, comments=False):
-    return {'id': self.id, 'title': self.title, 'body': self.body}
+    return {'id': self.id, 'body': self.body}
