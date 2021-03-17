@@ -50,6 +50,6 @@ class Post(db.Model):
     return Post.query.filter_by(id=id).first()
   
   def json(self):
-    d = {'id': self.id, 'title': self.title, 'slug': self.slug(), 'content': self.content, 'user_id': self.user_id}
+    d = {'id': self.id, 'title': self.title, 'slug': self.slug(), 'content': self.content, 'user_id': self.user_id, 'photo_original_filename': self.photo_original_filename, 'photo_system_filename': self.photo_system_filename}
     d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on, deleted_on=self.deleted_on))
     return d

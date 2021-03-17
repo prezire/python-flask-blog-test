@@ -22,20 +22,21 @@ class File:
   @staticmethod
   def upload(post):
     parser = Parser.instance()
-    parser.add_argument('photo', type=FileStorage, location='files')
     data = parser.parse_args()
-    photo = data['photo']
+    photo = request.files['photo']
     if photo:
       photo_original_filename = secure_filename(photo.filename)
-      ext = photo_original_filename.filename.split('.')[0]
-      photo_system_filename = hashlib.sha224(photo_original_filename).hexdigest() + '.' + ext
-      uploaded_file.save('./uploads/posts/' + photo_system_filename)
+      ext = photo_original_filename.split('.')[1]
+      photo_system_filename = hashlib.sha224(photo_original_filename.encode('utf-8')).hexdigest() + '.' + ext
+      filename = './uploads/posts/' + photo_system_filename
+      photo.save(filename)
       post.photo_original_filename = photo_original_filename
       post.photo_system_filename = photo_system_filename
       post.save()
 
 class Post(Resource):
-  def __user_id(self) -> int:
+  @staticmethod
+  def user_id() -> int:
     return get_jwt()['sub']
     
   def get(self, post:int):
@@ -43,16 +44,17 @@ class Post(Resource):
   
   @jwt_required()
   def post(self, post:int):
-    parser = Parser.instance()
-    parser.add_argument('content', type=str, required=True, help='The content field is required.')
-    data = parser.parse_args()
-    title = data['title']
-    content = data['content']
-    p = PostModel(title, content, self.__user_id()).save()
-    if p:
-      File.upload(p)
-      return {'post': p.json()}, 201
-    return {'message': 'Error creating a new post.'}, 400
+    pass
+    # parser = Parser.instance()
+    # parser.add_argument('content', type=str, required=True, help='The content field is required.')
+    # data = parser.parse_args()
+    # title = data['title']
+    # content = data['content']
+    # p = PostModel(title, content, self.user_id()).save()
+    # if p:
+    #   File.upload(p)
+    #   return {'post': p.json()}, 201
+    # return {'message': 'Error creating a new post.'}, 400
   
   @jwt_required()
   def patch(self, post:int):
@@ -66,7 +68,7 @@ class Post(Resource):
       stat = 'updated'
     else:
       content = data['content']
-      p = PostModel(title, content, self.__user_id())
+      p = PostModel(title, content, self.user_id())
     p.save()
     return {stat: p.json()}
   
@@ -109,4 +111,14 @@ class PostList(Resource):
     
   @jwt_required()
   def post(self):
-    return {'posts': [s.json() for s in PostModel.all()]}
+    #return {'posts': [s.json() for s in PostModel.all()]}
+    parser = Parser.instance()
+    parser.add_argument('content', type=str, required=True, help='The content field is required.')
+    data = parser.parse_args()
+    title = data['title']
+    content = data['content']
+    p = PostModel(title, content, Post.user_id()).save()
+    if p:
+      File.upload(p)
+      return {'post': p.json()}, 201
+    return {'message': 'Error creating a new post.'}, 400
