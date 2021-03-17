@@ -29,7 +29,7 @@ api.add_resource(CommentList, '/api/comments')
 api.add_resource(Comment, '/api/posts/<int:post>/comments/<int:comment>')
 
 api.add_resource(UserRegister, '/api/register')
-api.add_resource(User, '/user/<int:id>')
+api.add_resource(User, '/users/<int:id>')
 api.add_resource(UserList, '/users')
 api.add_resource(Login, '/api/login')
 api.add_resource(Logout, '/api/logout')
@@ -41,12 +41,11 @@ jwt = JWTManager(app)
 def authorize(header, payload):
   return {'header': header, 'payload': payload}
   
-@jwt.token_in_blacklist_loader
+@jwt.token_in_blocklist_loader
 def token_in_blacklist(decrypted_token) -> bool:
   return decrypted_token['jti'] in [j.jti for j in BlackList.all()]
 
 db.init_app(app)
-
 @app.before_first_request
 def migrate():
   db.create_all()

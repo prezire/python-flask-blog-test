@@ -24,7 +24,7 @@ class Comment(db.Model):
   created_on = db.Column(db.DateTime, server_default=now)
   updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
   
-  def __init__(self, body:str, parent_id:int=None:
+  def __init__(self, body:str, parent_id:int=None):
     self.body = body
     self.parent_id = parent_id
     

@@ -20,7 +20,7 @@ class BlackList(db.Model):
     return BlackList.find(self.id)
     
   @staticmethod
-  def find(id:int)
+  def find(id:int):
     return BlackList.query.filter_by(id=id).first()
     
   @classmethod

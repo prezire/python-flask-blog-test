@@ -8,7 +8,7 @@ from models.posts import Post as PostModel
 import os
 from flask import request
 from werkzeug.utils import secure_filename
-from werkzeug import FileStorage
+from werkzeug.datastructures import FileStorage
 import hashlib
 
 _parser = reqparse.RequestParser()
