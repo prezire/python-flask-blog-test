@@ -25,7 +25,7 @@ api = Api(app)
 api.add_resource(PostList, '/api/posts', endpoint='api.posts')
 api.add_resource(Post, '/api/posts/<int:post>')
 
-api.add_resource(CommentList, '/api/comments')
+api.add_resource(CommentList, '/api/posts/<int:post>/comments')
 api.add_resource(Comment, '/api/posts/<int:post>/comments/<int:comment>')
 
 api.add_resource(UserRegister, '/api/register')

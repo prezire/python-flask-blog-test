@@ -13,7 +13,6 @@ import hashlib
 
 _parser = reqparse.RequestParser()
 _parser.add_argument('title', type=str, required=True, help='The title field is required.')
-_parser.add_argument('content', type=str, required=True, help='The content field is required.')
 
 class File:
   @staticmethod
@@ -33,10 +32,14 @@ class File:
 class Post(Resource):
   def __user_id(self) -> int:
     return get_jwt()['sub']
+    
+  def get(self, post:int):
+    return {'data': PostModel.find(post).json()}
   
   @jwt_required()
   def post(self, post:int):
     data = _parser.parse_args()
+    _parser.add_argument('content', type=str, required=True, help='The content field is required.')
     title = data['title']
     content = data['content']
     p = PostModel(title, content, self.__user_id()).save()
@@ -49,15 +52,14 @@ class Post(Resource):
   def patch(self, post:int):
     data = _parser.parse_args()
     title = data['title']
-    content = data['content']
     p = PostModel.find(post)
     stat = 'created'
     if p:
       p.title = title
-      p.content = content
       File.upload(p)
       stat = 'updated'
     else:
+      content = data['content']
       p = PostModel(title, content, self.__user_id())
     p.save()
     return {stat: p.json()}
@@ -75,21 +77,23 @@ class PostList(Resource):
   #Guest.
   def get(self):
     a = request.args
-    page = int(a['page'] if 'page' in a else 1)
-    per_page = int(a['per_page'] if 'per_page' in a else 1)
+    first = 1
+    page = int(a['page'] if 'page' in a else first)
+    per_page = int(a['per_page'] if 'per_page' in a else 10)
     posts = PostModel.all(True, page, per_page)
+    url = lambda page: url_for(endpoint='api.posts', _external=True, page=page)
     data = []
     links = {
-      'first': url_for(endpoint='api.posts', _external=True, page=1),
-      'last': url_for(endpoint='api.posts', _external=True, page=posts.total), 
-      'prev': posts.prev_num, 
-      'next': posts.next_num
+      'first': url(first),
+      'last': url(posts.total), 
+      'prev': url(posts.prev_num), 
+      'next': url(posts.next_num)
     }
     meta = {
       'current_page': posts.page, 
-      'from': 1,
-      'to': posts.total,
-      'path': url_for(endpoint='api.posts'),
+      'from': first,
+      'to': posts.pages,
+      'path': url_for(endpoint='api.posts', _external=True),
       'per_page': posts.per_page, 
       'total': posts.total
     }

@@ -1,5 +1,6 @@
 from .dbs import db
 from .timestamp import SqlDateTime, Timestamp
+from datetime import datetime
 
 class Post(db.Model):
   __tablename__ = 'posts'
@@ -26,7 +27,7 @@ class Post(db.Model):
     self.content = content
     
   @staticmethod
-  def all(paginate=False, page=1, per_page=2):
+  def all(paginate=False, page:int=1, per_page:int=2):
     if paginate:
       return Post.query.paginate(page=page, per_page=per_page)
     return Post.query.all()
@@ -40,7 +41,7 @@ class Post(db.Model):
     return Post.find(self.id)
     
   def delete(self):
-    db.session.delete(self)
+    self.deleted_on = datetime.now()
     db.session.commit()
     return True
     
