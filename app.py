@@ -4,7 +4,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from resources.users import Register as UserRegister, User, UserList, Login, Logout
 from resources.posts import Post, PostList
-from resources.comments import Comment, CommentList
+from resources.comments import Comment, CommentList, CommentCreate
 from datetime import timedelta
 from models.dbs import db
 from models.tokens import BlackList
@@ -22,11 +22,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-api.add_resource(PostList, '/api/posts', endpoint='api.posts')
-api.add_resource(Post, '/api/posts/<int:post>')
 
 api.add_resource(CommentList, '/api/posts/<int:post>/comments')
+api.add_resource(CommentCreate, '/api/posts/<int:post>/comments')
 api.add_resource(Comment, '/api/posts/<int:post>/comments/<int:comment>')
+
+api.add_resource(PostList, '/api/posts', endpoint='api.posts')
+api.add_resource(Post, '/api/posts/<int:post>')
 
 api.add_resource(UserRegister, '/api/register')
 api.add_resource(User, '/users/<int:id>')

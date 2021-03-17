@@ -4,7 +4,7 @@ class Comment(db.Model):
   __tablename__ = 'comments'
   
   id = db.Column(db.Integer, primary_key=True)
-  body = db.Column(db.Text())
+  body = db.Column(db.Text(), nullable=False)
   
   #OP.
   creator_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -15,18 +15,20 @@ class Comment(db.Model):
   
   #Self-ref parent.
   parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'))
-  parent = db.relationship('Comment')
+  parent = db.relationship('Comment', remote_side=id, backref='comments')
   
   #Comment replies.
-  comments = db.relationship('Comment')
+  #comments = db.relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'))
   
   now = db.func.now()
   created_on = db.Column(db.DateTime, server_default=now)
   updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
   
-  def __init__(self, body:str, parent_id:int=None):
+  #def __init__(self, body:str, post_id:int, creator_id:int):
+  def __init__(self, body:str, post_id:int):
     self.body = body
-    self.parent_id = parent_id
+    #self.post_id = post_id
+    #self.creator_id = creator_id
     
   def save(self):
     db.session.add(self)
@@ -43,8 +45,9 @@ class Comment(db.Model):
     return True
     
   @staticmethod
-  def all(cls):
+  def all():
     return Comment.query.all()
   
   def json(self, comments=False):
-    return {'id': self.id, 'body': self.body}
+    #return {'id': self.id, 'body': self.body}
+    return {}

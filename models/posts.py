@@ -19,7 +19,7 @@ class Post(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
   user = db.relationship('User')
   
-  comments = db.relationship('Comment', lazy='dynamic')
+  comments = db.relationship('Comment', lazy=True)
   
   def __init__(self, title:str, content:str, user_id:int):
     self.title = title

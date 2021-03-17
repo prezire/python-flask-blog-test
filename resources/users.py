@@ -65,6 +65,10 @@ class UserList(Resource):
     return jsonify(users=[u.json() for u in UserModel.all()])
     
 class User(Resource):
+  @staticmethod
+  def id() -> int:
+    return get_jwt()['sub']
+    
   @jwt_required()
   def get(self, id:int):
     user = UserModel.find(id)

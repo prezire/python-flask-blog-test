@@ -1,23 +1,22 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required, get_current_user
+from flask_jwt_extended import jwt_required
 from models.comments import Comment as CommentModel
+from resources.users import User
 from authorizations.gates import Delete
 from acls.messages import Permission
 from flask import abort, request
 
-parser = reqparse.RequestParser()
-parser.add_argument('body', type=str, required=True, help='The body field is required.')
+_parser = reqparse.RequestParser()
+_parser.add_argument('body', type=str, required=True, help='The body field is required.')
 
-class Comment(Resource):    
+class CommentCreate(Resource):
   @jwt_required()
   def post(self, post:int):
-    comment = CommentModel(_parser.parse_args()['body']).save()
-    parent_id = request.parent_id
-    if parent_id:
-      comment.parent_id = parent_id
-      comment.save()
-    return {'comment': comment.json()}
-    
+    #comment = CommentModel(_parser.parse_args()['body'], post, User().id()).save()
+    comment = CommentModel(_parser.parse_args()['body'], post).save()
+    return {'data': comment.json()}
+
+class Comment(Resource):    
   @jwt_required()
   def delete(self, post:int, comment:int):
     if not Delete.can():
@@ -45,5 +44,5 @@ class Comment(Resource):
 
 class CommentList(Resource):
   #Guest.
-  def get(self, post:int, comment:int):
-    return {'comments': [i.json() for i in CommentModel.all()]}
+  def get(self, post:int):
+    return {'data': [i.json() for i in CommentModel.all()]}
