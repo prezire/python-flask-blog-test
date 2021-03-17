@@ -22,7 +22,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-api.add_resource(PostList, '/api/posts')
+api.add_resource(PostList, '/api/posts', endpoint='api.posts')
 api.add_resource(Post, '/api/posts/<int:post>')
 
 api.add_resource(CommentList, '/api/comments')
@@ -42,8 +42,9 @@ def authorize(header, payload):
   return {'header': header, 'payload': payload}
   
 @jwt.token_in_blocklist_loader
-def token_in_blacklist(decrypted_token) -> bool:
-  return decrypted_token['jti'] in [j.jti for j in BlackList.all()]
+def check_if_token_is_revoked(jwt_header, jwt_payload) -> bool:
+  print([j.jti for j in BlackList.all()])
+  return jwt_payload['jti'] in [j.jti for j in BlackList.all()]
 
 db.init_app(app)
 @app.before_first_request

@@ -6,6 +6,8 @@ class Timestamp:
     d = {'created_on': SqlDateTime.fmt(dates['created_on']), 'updated_on': SqlDateTime.fmt(dates['updated_on'])}
     if 'deleted_on' in dates and dates['deleted_on']:
       d.update(SqlDateTime.fmt(dates['deleted_on']))
+    else:
+      d.update(deleted_on=None)
     return d
     
   

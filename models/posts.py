@@ -26,13 +26,18 @@ class Post(db.Model):
     self.content = content
     
   @staticmethod
-  def all(cls):
+  def all(paginate=False, page=1, per_page=2):
+    if paginate:
+      return Post.query.paginate(page=page, per_page=per_page)
     return Post.query.all()
+    
+  def slug(self) -> str:
+    return self.title.lower().replace(' ', '-')
     
   def save(self):
     db.session.add(self)
     db.session.commit()
-    return Store.find(self.id)
+    return Post.find(self.id)
     
   def delete(self):
     db.session.delete(self)
@@ -44,7 +49,6 @@ class Post(db.Model):
     return Post.query.filter_by(id=id).first()
   
   def json(self):
-    slug = self.title.lower().replace(' ', '-')
-    d = {'id': self.id, 'title': self.title, 'slug': slug, 'content': self.content}
+    d = {'id': self.id, 'title': self.title, 'slug': self.slug(), 'content': self.content, 'user_id': self.user_id}
     d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on, deleted_on=self.deleted_on))
     return d

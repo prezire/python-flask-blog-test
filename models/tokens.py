@@ -23,6 +23,6 @@ class BlackList(db.Model):
   def find(id:int):
     return BlackList.query.filter_by(id=id).first()
     
-  @classmethod
-  def all(cls):
-    return cls.query.all()
+  @staticmethod
+  def all():
+    return BlackList.query.all()
