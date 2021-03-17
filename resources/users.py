@@ -3,8 +3,12 @@ from flask import jsonify, json
 from flask_restful import Resource, reqparse
 from models.users import User as UserModel
 from models.timestamp import SqlDateTime
-from models.tokens import BlackList
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
+from flask_jwt_extended import (get_raw_jwt,
+                                create_access_token,
+                                create_refresh_token,
+                                jwt_required,
+                                jwt_refresh_token_required,
+                                get_jwt_identity)
 from exceptions.messages import unprocessable_entity as unproc
 from datetime import timedelta, datetime
 
@@ -31,9 +35,14 @@ class Login(Resource):
 class Logout(Resource):
   @jwt_required()
   def post(self):
-    token = ''
-    return {'success': BlackList(token).save()}
+    return {'success': len(models.tokens.BlackList(get_raw_jwt()['jti']).save()) > 0}
     
+class RefreshToken(Resource):
+  @jwt_refresh_token_required
+  def post(self):
+    refresh_token = create_access_token(identity=get_jwt_identity(), fresh=False)
+    return {'token': refresh_token}
+  
 class Register(Resource):
   def post(self):
     _parser.add_argument('name', required=True, help='The name field is required.')
