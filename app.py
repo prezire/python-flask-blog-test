@@ -14,7 +14,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'test')
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', timedelta(seconds=1800))
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', timedelta(seconds=4800))
 app.config['JWT_SECRET_KEY'] = app.secret_key
 app.config['JWT_BLACKLIST_ENABLED'] = True
 

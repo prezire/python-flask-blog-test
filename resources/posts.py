@@ -11,14 +11,19 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 import hashlib
 
-_parser = reqparse.RequestParser()
-_parser.add_argument('title', type=str, required=True, help='The title field is required.')
+class Parser:
+  @staticmethod
+  def instance():
+    parser = reqparse.RequestParser()
+    parser.add_argument('title', type=str, required=True, help='The title field is required.')
+    return parser
 
 class File:
   @staticmethod
   def upload(post):
-    _parser.add_argument('photo', type=FileStorage, location='files')
-    data = _parser.parse_args()
+    parser = Parser.instance()
+    parser.add_argument('photo', type=FileStorage, location='files')
+    data = parser.parse_args()
     photo = data['photo']
     if photo:
       photo_original_filename = secure_filename(photo.filename)
@@ -38,8 +43,9 @@ class Post(Resource):
   
   @jwt_required()
   def post(self, post:int):
-    data = _parser.parse_args()
-    _parser.add_argument('content', type=str, required=True, help='The content field is required.')
+    parser = Parser.instance()
+    parser.add_argument('content', type=str, required=True, help='The content field is required.')
+    data = parser.parse_args()
     title = data['title']
     content = data['content']
     p = PostModel(title, content, self.__user_id()).save()
@@ -50,7 +56,7 @@ class Post(Resource):
   
   @jwt_required()
   def patch(self, post:int):
-    data = _parser.parse_args()
+    data = Parser.instance().parse_args()
     title = data['title']
     p = PostModel.find(post)
     stat = 'created'

@@ -12,13 +12,17 @@ from flask_jwt_extended import (get_jwt,
 from exceptions.messages import unprocessable_entity as unproc
 from datetime import timedelta, datetime
 
-_parser = reqparse.RequestParser()
-_parser.add_argument('email', required=True, help='The email field is required.')
-_parser.add_argument('password', required=True, help='The password field is required.')
+class Parser:
+  @staticmethod
+  def instance():
+    parser = reqparse.RequestParser()
+    parser.add_argument('email', required=True, help='The email field is required.')
+    parser.add_argument('password', required=True, help='The password field is required.')
+    return parser
 
 class Login(Resource):
   def post(self):
-    data = _parser.parse_args()
+    data = Parser.instance().parse_args()
     email = data['email']
     password = data['password']
     user = UserModel.find_by_email(email)
@@ -45,9 +49,10 @@ class RefreshToken(Resource):
   
 class Register(Resource):
   def post(self):
-    _parser.add_argument('name', required=True, help='The name field is required.')
-    _parser.add_argument('password_confirmation', required=True)
-    data = _parser.parse_args()
+    parser = Parser.instance()
+    parser.add_argument('name', required=True, help='The name field is required.')
+    parser.add_argument('password_confirmation', required=True)
+    data = parser.parse_args()
     name = data['name']
     email = data['email']
     password = data['password']
@@ -78,9 +83,10 @@ class User(Resource):
     
   @jwt_required()
   def put(self, id:int):
-    _parser.add_argument('new_email', required=True)
-    _parser.add_argument('new_password', required=True)
-    data = _parser.parse_args()
+    parser = Parser.instance()
+    parser.add_argument('new_email', required=True)
+    parser.add_argument('new_password', required=True)
+    data = parser.parse_args()
     email = data['email']
     password = data['password']
     user = UserModel.find(id)

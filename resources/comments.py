@@ -6,14 +6,17 @@ from authorizations.gates import Delete
 from acls.messages import Permission
 from flask import abort, request
 
-_parser = reqparse.RequestParser()
-_parser.add_argument('body', type=str, required=True, help='The body field is required.')
+class Parser:
+  @staticmethod
+  def instance():
+    parser = reqparse.RequestParser()
+    parser.add_argument('body', type=str, required=True, help='The body field is required.')
+    return parser
 
 class CommentCreate(Resource):
   @jwt_required()
   def post(self, post:int):
-    #comment = CommentModel(_parser.parse_args()['body'], post, User().id()).save()
-    comment = CommentModel(_parser.parse_args()['body'], post).save()
+    comment = CommentModel(Parser.instance().parse_args()['body'], post, User().id()).save()
     return {'data': comment.json()}
 
 class Comment(Resource):    

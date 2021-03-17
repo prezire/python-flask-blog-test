@@ -1,9 +1,11 @@
 from .dbs import db
+from .timestamp import SqlDateTime
 
 class Comment(db.Model):
   __tablename__ = 'comments'
   
   id = db.Column(db.Integer, primary_key=True)
+  title = db.Column(db.String(100), nullable=True)
   body = db.Column(db.Text(), nullable=False)
   
   #OP.
@@ -24,11 +26,10 @@ class Comment(db.Model):
   created_on = db.Column(db.DateTime, server_default=now)
   updated_on = db.Column(db.DateTime, server_default=now, server_onupdate=now)
   
-  #def __init__(self, body:str, post_id:int, creator_id:int):
-  def __init__(self, body:str, post_id:int):
+  def __init__(self, body:str, post_id:int, creator_id:int):
     self.body = body
-    #self.post_id = post_id
-    #self.creator_id = creator_id
+    self.post_id = post_id
+    self.creator_id = creator_id
     
   def save(self):
     db.session.add(self)
@@ -36,7 +37,7 @@ class Comment(db.Model):
     return self.find(self.id)
     
   @staticmethod
-  def find(int:id):
+  def find(id:int):
     return Comment.query.filter_by(id=id).first()
     
   def delete(self):
@@ -49,5 +50,4 @@ class Comment(db.Model):
     return Comment.query.all()
   
   def json(self, comments=False):
-    #return {'id': self.id, 'body': self.body}
-    return {}
+    return {'id': self.id, 'title': self.title, 'body': self.body, 'creator_id': self.creator_id, 'parent_id': self.parent_id, 'created_on': SqlDateTime.fmt(self.created_on), 'updated_on': SqlDateTime.fmt(self.updated_on)}
