@@ -19,7 +19,7 @@ class Post(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
   user = db.relationship('User')
   
-  #comments = db.relationship('Comment', lazy=True)
+  comments = db.relationship('Comment', lazy='dynamic')
   
   def __init__(self, title:str, content:str, user_id:int):
     self.title = title
@@ -48,6 +48,10 @@ class Post(db.Model):
   @staticmethod
   def find(id:int):
     return Post.query.filter_by(id=id).first()
+    
+  @staticmethod
+  def find_comment(post_id:int, comment_id:int):
+    return Post.query.filter_by(id=post_id).first().comments.filter_by(id=comment_id).first()
   
   def json(self):
     d = {'id': self.id, 'title': self.title, 'slug': self.slug(), 'content': self.content, 'user_id': self.user_id, 'photo_original_filename': self.photo_original_filename, 'photo_system_filename': self.photo_system_filename}

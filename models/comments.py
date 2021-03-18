@@ -17,10 +17,8 @@ class Comment(db.Model):
   
   #Self-ref parent.
   parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'))
-  parent = db.relationship('Comment', remote_side=id, backref='comments')
   
-  #Comment replies.
-  #comments = db.relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'))
+  replies = db.relationship('Comment', backref=db.backref('parent', remote_side='Comment.id'))
   
   now = db.func.now()
   created_on = db.Column(db.DateTime, server_default=now)
@@ -49,5 +47,9 @@ class Comment(db.Model):
   def all():
     return Comment.query.all()
   
-  def json(self, comments=False):
-    return {'id': self.id, 'title': self.title, 'body': self.body, 'creator_id': self.creator_id, 'parent_id': self.parent_id, 'created_on': SqlDateTime.fmt(self.created_on), 'updated_on': SqlDateTime.fmt(self.updated_on)}
+  def json(self, replies=False):
+    d = {'id': self.id, 'title': self.title, 'body': self.body, 'creator_id': self.creator_id, 'parent_id': self.parent_id, 'created_on': SqlDateTime.fmt(self.created_on), 'updated_on': SqlDateTime.fmt(self.updated_on)}
+    reps = self.replies
+    if replies and reps:
+      d.update({'replies': [{'id': rep.id, 'title': rep.title, 'body': rep.body} for rep in reps]})
+    return d

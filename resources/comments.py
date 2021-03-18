@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from models.comments import Comment as CommentModel
+from models.posts import Post as PostModel
 from resources.users import User
 from authorizations.gates import Delete
 from acls.messages import Permission
@@ -22,30 +23,32 @@ class CommentCreate(Resource):
 class Comment(Resource):    
   @jwt_required()
   def delete(self, post:int, comment:int):
-    if not Delete.can():
-      return Permission.denied()
-    comment = CommentModel.find(comment)
-    if not comment:
+    c = PostModel.find_comment(post, comment)
+    if not c:
       return {'message': 'No comments to delete.'}, 404
-    return {'deleted': comment.delete()}
+    return {'deleted': c.delete()}
     
   @jwt_required()
   def patch(self, post:int, comment:int):
-    comment = CommentModel.find(comment)
-    data = _parser.parse_args()
+    c = PostModel.find_comment(post, comment)
+    parser = Parser.instance()
+    parser.add_argument('title', type=str, required=False)
+    parser.add_argument('parent_id', type=int, required=False)
+    data = parser.parse_args()
     stat = 'created'
-    if comment:
-      comment.body = body
+    if c:
+      c.body = data['body']
       stat = 'updated'
     else:
-      comment = CommentModel(body)
-    parent_id = request.parent_id
-    if parent_id:
-      comment.parent_id = parent_id
-    comment.save()
-    return {stat: comment.json()}
+      c = CommentModel(body, post_id, User().id())
+    if 'title' in data and data['title']:
+      c.title = data['title']
+    if 'parent_id' in data and data['parent_id']:
+      c.parent_id = data['parent_id']
+    c.save()
+    return {stat: c.json(True)}
 
 class CommentList(Resource):
   #Guest.
   def get(self, post:int):
-    return {'data': [i.json() for i in CommentModel.all()]}
+    return {'data': [i.json(True) for i in CommentModel.all()]}
