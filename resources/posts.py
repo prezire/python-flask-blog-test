@@ -42,7 +42,7 @@ class Post(Resource):
     p = PostModel.find_by_slug(post)
     if p:
       return {'data': p.json()}
-    return {'message': 'No query results for model [App\\Post].'}, 404
+    return {'message': 'No query results for post.'}, 404
   
   @jwt_required()
   def patch(self, post:str):
@@ -51,16 +51,14 @@ class Post(Resource):
     data = parser.parse_args()
     title = data['title']
     p = PostModel.find_by_slug(post)
-    stat = 'created'
     if p:
       p.set_title(title)
       File.upload(p)
-      stat = 'updated'
     else:
       content = data['content']
       p = PostModel(title, content, self.user_id())
     p.save()
-    return {stat: p.json()}
+    return {'data': p.json()}
   
   @jwt_required()
   def delete(self, post:str):

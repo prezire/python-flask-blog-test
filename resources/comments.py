@@ -19,7 +19,7 @@ class CommentCreate(Resource):
       c = CommentModel(Parser.instance().parse_args()['body'], p.id, User().id()).save()
       return {'data': c.json()}
     else:
-      return {'message': 'No query results for such Post.'}
+      return {'message': 'No query results for such post.'}
 
 class Comment(Resource):    
   @jwt_required()
@@ -27,7 +27,7 @@ class Comment(Resource):
     c = PostModel.find_comment_by_slug(post, comment)
     if not c:
       return {'message': 'No comments to delete.'}, 404
-    return {'deleted': c.delete()}
+    return {'status': 'Record deleted successfully.'}
     
   @jwt_required()
   def patch(self, post:str, comment:int):
@@ -36,11 +36,9 @@ class Comment(Resource):
     parser.add_argument('parent_id', type=int, required=False)
     data = parser.parse_args()
     body = data['body']
-    stat = 'created'
     c = PostModel.find_comment_by_slug(post, comment)
     if c:
       c.body = body
-      stat = 'updated'
     else:
       c = CommentModel(body, post, User().id())
     if 'title' in data and data['title']:
@@ -48,7 +46,7 @@ class Comment(Resource):
     if 'parent_id' in data and data['parent_id']:
       c.parent_id = data['parent_id']
     c.save()
-    return {stat: c.json(True)}
+    return {'data': c.json(True)}
 
 class CommentList(Resource):
   #Guest.

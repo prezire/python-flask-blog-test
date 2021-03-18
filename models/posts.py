@@ -1,7 +1,7 @@
 from .dbs import db
-from .timestamp import SqlDateTime, Timestamp
 from datetime import datetime
 from slugify import slugify
+from services.json import class_attrs
 
 class Post(db.Model):
   __tablename__ = 'posts'
@@ -65,6 +65,4 @@ class Post(db.Model):
       return p.comments.filter_by(id=comment_id).first()
   
   def json(self):
-    d = {'id': self.id, 'title': self.title, 'slug': self.slug, 'content': self.content, 'user_id': self.user_id, 'photo_original_filename': self.photo_original_filename, 'photo_system_filename': self.photo_system_filename}
-    d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on, deleted_on=self.deleted_on))
-    return d
+    return class_attrs(self)

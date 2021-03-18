@@ -1,5 +1,5 @@
 from .dbs import db
-from .timestamp import SqlDateTime
+from services.json import class_attrs
 
 class Comment(db.Model):
   __tablename__ = 'comments'
@@ -48,7 +48,7 @@ class Comment(db.Model):
     return Comment.query.all()
   
   def json(self, replies=False):
-    d = {'id': self.id, 'title': self.title, 'post_id': self.post_id, 'body': self.body, 'creator_id': self.creator_id, 'parent_id': self.parent_id, 'created_on': SqlDateTime.fmt(self.created_on), 'updated_on': SqlDateTime.fmt(self.updated_on)}
+    d = class_attrs(self)
     reps = self.replies
     if replies and reps:
       d.update({'replies': [{'id': rep.id, 'title': rep.title, 'body': rep.body} for rep in reps]})

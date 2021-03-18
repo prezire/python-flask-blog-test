@@ -1,6 +1,7 @@
 from .dbs import db
-from .timestamp import SqlDateTime, Timestamp
+#from .timestamp import Timestamp
 from passlib.hash import sha256_crypt
+from services.json import class_attrs
 
 class User(db.Model):
   __tablename__ = 'users'
@@ -52,6 +53,6 @@ class User(db.Model):
     return sha256_crypt.verify(password, self.password)
     
   def json(self):
-    d = {'id': self.id, 'name': self.name, 'email': self.email}
-    d.update(Timestamp.json(created_on=self.created_on, updated_on=self.updated_on))
+    d = class_attrs(self)
+    del d['password']
     return d
