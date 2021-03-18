@@ -1,5 +1,6 @@
 from .dbs import db
 from .timestamp import SqlDateTime, Timestamp
+from passlib.hash import sha256_crypt
 
 class User(db.Model):
   __tablename__ = 'users'
@@ -19,7 +20,7 @@ class User(db.Model):
   def __init__(self, name:str, email:str, password:str):
     self.name = name
     self.email = email
-    self.password = password
+    self.password = sha256_crypt.encrypt(password)
     
   def save(self):
     db.session.add(self)
@@ -46,6 +47,9 @@ class User(db.Model):
   @staticmethod
   def find(id:int):
     return User.query.filter_by(id=id).first()
+    
+  def verify_password(self, password:str) -> bool:
+    return sha256_crypt.verify(password, self.password)
     
   def json(self):
     d = {'id': self.id, 'name': self.name, 'email': self.email}

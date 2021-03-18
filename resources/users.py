@@ -1,5 +1,4 @@
-from werkzeug.security import safe_str_cmp
-from flask import jsonify, json
+#from flask import jsonify
 from flask_restful import Resource, reqparse
 from models.users import User as UserModel
 from models.timestamp import SqlDateTime
@@ -26,7 +25,7 @@ class Login(Resource):
     email = data['email']
     password = data['password']
     user = UserModel.find_by_email(email)
-    if user and safe_str_cmp(password, user.password):
+    if user and user.verify_password(password):
       uid = user.id
       sec = 1800
       exp = timedelta(seconds=sec)
@@ -67,7 +66,7 @@ class Register(Resource):
 class UserList(Resource):
   @jwt_required()
   def get(self):
-    return jsonify(users=[u.json() for u in UserModel.all()])
+    return {'users': [u.json() for u in UserModel.all()]}
     
 class User(Resource):
   @staticmethod
@@ -78,8 +77,8 @@ class User(Resource):
   def get(self, id:int):
     user = UserModel.find(id)
     if user:
-      return jsonify(user=user.json())
-    return jsonify(message='No such user.')
+      return {'user': user.json()}
+    return {'message': 'No such user.'}
     
   @jwt_required()
   def put(self, id:int):
@@ -90,13 +89,13 @@ class User(Resource):
     email = data['email']
     password = data['password']
     user = UserModel.find(id)
-    if user and user.email == email and safe_str_cmp(password, user.password):
+    if user and user.email == email and user.verify_password(password):
       new_email =  data['new_email']
       new_password =  data['new_password']
       user.email = new_email
       user.password = new_password
       user.save()
-      return jsonify(message='User was updated.')
+      return {'message': 'User was updated.'}
     return {'message': 'The user does not exist.'}, 404
   
   @jwt_required()
@@ -105,4 +104,4 @@ class User(Resource):
     b = False
     if user:
       b = user.delete()
-    return jsonify(success=b)
+    return {'success': b}

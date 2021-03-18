@@ -3,22 +3,19 @@ from flask_jwt_extended import jwt_required
 from models.comments import Comment as CommentModel
 from models.posts import Post as PostModel
 from resources.users import User
-from authorizations.gates import Delete
-from acls.messages import Permission
-from flask import abort, request
 
 class Parser:
   @staticmethod
   def instance():
-    parser = reqparse.RequestParser()
-    parser.add_argument('body', type=str, required=True, help='The body field is required.')
-    return parser
+    p = reqparse.RequestParser()
+    p.add_argument('body', type=str, required=True, help='The body field is required.')
+    return p
 
 class CommentCreate(Resource):
   @jwt_required()
   def post(self, post:int):
-    comment = CommentModel(Parser.instance().parse_args()['body'], post, User().id()).save()
-    return {'data': comment.json()}
+    c = CommentModel(Parser.instance().parse_args()['body'], post, User().id()).save()
+    return {'data': c.json()}
 
 class Comment(Resource):    
   @jwt_required()

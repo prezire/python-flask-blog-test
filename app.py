@@ -47,6 +47,10 @@ def authorize(header, payload):
 def check_if_token_is_revoked(jwt_header, jwt_payload) -> bool:
   print([j.jti for j in BlackList.all()])
   return jwt_payload['jti'] in [j.jti for j in BlackList.all()]
+  
+@jwt.revoked_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+  return {'message': 'Token has been revoked.'}, 401
 
 db.init_app(app)
 @app.before_first_request

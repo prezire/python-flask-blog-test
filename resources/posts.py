@@ -14,9 +14,9 @@ import hashlib
 class Parser:
   @staticmethod
   def instance():
-    parser = reqparse.RequestParser()
-    parser.add_argument('title', type=str, required=True, help='The title field is required.')
-    return parser
+    p = reqparse.RequestParser()
+    p.add_argument('title', type=str, required=True, help='The title field is required.')
+    return p
 
 class File:
   @staticmethod
@@ -41,20 +41,6 @@ class Post(Resource):
     
   def get(self, post:int):
     return {'data': PostModel.find(post).json()}
-  
-  @jwt_required()
-  def post(self, post:int):
-    pass
-    # parser = Parser.instance()
-    # parser.add_argument('content', type=str, required=True, help='The content field is required.')
-    # data = parser.parse_args()
-    # title = data['title']
-    # content = data['content']
-    # p = PostModel(title, content, self.user_id()).save()
-    # if p:
-    #   File.upload(p)
-    #   return {'post': p.json()}, 201
-    # return {'message': 'Error creating a new post.'}, 400
   
   @jwt_required()
   def patch(self, post:int):
