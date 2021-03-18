@@ -14,7 +14,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'test')
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', timedelta(seconds=4800))
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 4800))
 app.config['JWT_SECRET_KEY'] = app.secret_key
 app.config['JWT_BLACKLIST_ENABLED'] = True
 
@@ -23,12 +23,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
 
-api.add_resource(CommentList, '/api/posts/<int:post>/comments')
-api.add_resource(CommentCreate, '/api/posts/<int:post>/comments')
-api.add_resource(Comment, '/api/posts/<int:post>/comments/<int:comment>')
+api.add_resource(CommentList, '/api/posts/<string:post>/comments')
+api.add_resource(CommentCreate, '/api/posts/<string:post>/comments')
+api.add_resource(Comment, '/api/posts/<string:post>/comments/<int:comment>')
 
 api.add_resource(PostList, '/api/posts', endpoint='api.posts')
-api.add_resource(Post, '/api/posts/<int:post>')
+api.add_resource(Post, '/api/posts/<string:post>')
 
 api.add_resource(UserRegister, '/api/register')
 api.add_resource(User, '/users/<int:id>')

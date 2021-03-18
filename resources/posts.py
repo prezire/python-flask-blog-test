@@ -21,35 +21,39 @@ class Parser:
 class File:
   @staticmethod
   def upload(post):
-    parser = Parser.instance()
-    data = parser.parse_args()
-    photo = request.files['photo']
-    if photo:
-      photo_original_filename = secure_filename(photo.filename)
-      ext = photo_original_filename.split('.')[1]
-      photo_system_filename = hashlib.sha224(photo_original_filename.encode('utf-8')).hexdigest() + '.' + ext
-      filename = './uploads/posts/' + photo_system_filename
-      photo.save(filename)
-      post.photo_original_filename = photo_original_filename
-      post.photo_system_filename = photo_system_filename
-      post.save()
+    if 'photo' in request.files:
+      photo = request.files['photo']
+      if photo:
+        photo_original_filename = secure_filename(photo.filename)
+        ext = photo_original_filename.split('.')[1]
+        photo_system_filename = hashlib.sha224(photo_original_filename.encode('utf-8')).hexdigest() + '.' + ext
+        filename = './uploads/posts/' + photo_system_filename
+        photo.save(filename)
+        post.photo_original_filename = photo_original_filename
+        post.photo_system_filename = photo_system_filename
+        post.save()
 
 class Post(Resource):
   @staticmethod
   def user_id() -> int:
     return get_jwt()['sub']
     
-  def get(self, post:int):
-    return {'data': PostModel.find(post).json()}
+  def get(self, post:str):
+    p = PostModel.find_by_slug(post)
+    if p:
+      return {'data': p.json()}
+    return {'message': 'No query results for model [App\\Post].'}, 404
   
   @jwt_required()
-  def patch(self, post:int):
-    data = Parser.instance().parse_args()
+  def patch(self, post:str):
+    parser = Parser.instance()
+    parser.add_argument('content', type=str, required=True, help='The content field is required.')
+    data = parser.parse_args()
     title = data['title']
-    p = PostModel.find(post)
+    p = PostModel.find_by_slug(post)
     stat = 'created'
     if p:
-      p.title = title
+      p.set_title(title)
       File.upload(p)
       stat = 'updated'
     else:
@@ -59,12 +63,10 @@ class Post(Resource):
     return {stat: p.json()}
   
   @jwt_required()
-  def delete(self, post:int):
-    if not Delete.can():
-      return Permission.denied()
-    p = PostModel.find(post)
+  def delete(self, post:str):
+    p = PostModel.find_by_slug(post)
     if p:
-      return {'deleted': p.delete()}
+      return {'status': 'record deleted successfully'}
     return {'message': 'No posts to delete.'}, 404
 
 class PostList(Resource):   
@@ -97,7 +99,6 @@ class PostList(Resource):
     
   @jwt_required()
   def post(self):
-    #return {'posts': [s.json() for s in PostModel.all()]}
     parser = Parser.instance()
     parser.add_argument('content', type=str, required=True, help='The content field is required.')
     data = parser.parse_args()
