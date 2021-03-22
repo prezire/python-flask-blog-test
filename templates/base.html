@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/app.css') }}">
+    <title>LIG Blog - {{ title }}</title>
+  </head>
+  <body>    
+    <div id="app" class="container">
+      
+      <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+        <a class="navbar-brand" href="/">
+          <img src="{{ url_for('static', filename='images/lig_blog.png')}}" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+              <a v-if="logged" class="nav-item nav-link" href="/posts">Posts</a>
+              <a v-if="logged" class="nav-item nav-link" href="/comments">Comments</a>
+              <a v-if="logged" class="nav-item nav-link" href="/api/logout">Logout</a>
+              <a v-if="!logged" class="nav-item nav-link" href="/admin/register">Register</a>
+              <a v-if="!logged" class="nav-item nav-link" href="/admin/login">Login</a>
+          </div>
+        </div>
+      </nav>
+      
+      <header>{% block header %}{% endblock %}</header>
+      
+      {% block content %}{% endblock %}
+      
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script src="{{ url_for('static', filename='scripts/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/app.js') }}"></script>
+    
+    <script>API_BASE_URL = 'http://localhost:8000';</script>
+    {% block scripts %}{% endblock %}
+    
+  </body>
+</html>

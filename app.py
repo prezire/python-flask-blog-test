@@ -1,4 +1,3 @@
-import os
 from flask import Flask, render_template, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -8,17 +7,27 @@ from resources.comments import Comment, CommentList, CommentCreate
 from datetime import timedelta
 from models.dbs import db
 from models.tokens import BlackList
+from dotenv import load_dotenv
+from services.env import env
+from distutils.util import strtobool
+from flask_cors import CORS, cross_origin
+
+load_dotenv(verbose=True)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'test')
+
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+app.secret_key = env('APP_SECRET_KEY', 'test')
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 4800))
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=env('JWT_ACCESS_TOKEN_EXPIRES_SECONDS', 4800))
 app.config['JWT_SECRET_KEY'] = app.secret_key
 app.config['JWT_BLACKLIST_ENABLED'] = True
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = env('DATABASE_URL', 'sqlite:///blog.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
@@ -57,9 +66,21 @@ db.init_app(app)
 def migrate():
   db.create_all()
   
-@app.route('/')
-def home():
-  return render_template('index.html')
+@app.route('/admin/register')
+def admin_register():
+  return render_template('admins/register.html', title="Register")
+  
+@app.route('/admin/login')
+def admin_login():
+  return render_template('admins/login.html', title="Login")
+  
+@app.route('/posts')
+def posts():
+  return render_template('posts/index.html', title="Posts")
+  
+@app.route('/comments')
+def comments():
+  return render_template('comments/index.html', title="Comments")
 
 if __name__ == '__main__':
-  app.run(debug=True)
+  app.run(host=env('APP_HOST', 'localhost'), port=env('APP_PORT'), debug=bool(strtobool(env('APP_DEBUG'))))

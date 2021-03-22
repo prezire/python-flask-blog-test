@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}Comments{% endblock %}
+
+{% block content %}
+Some Comments.
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function(){
+    Auth.loggedOrRedirect();
+    
+    Auth.send('api/posts', 'get');
+  });
+</script>
+{% endblock %}

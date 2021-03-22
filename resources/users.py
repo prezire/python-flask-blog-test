@@ -33,7 +33,7 @@ class Login(Resource):
       refresh_token = create_refresh_token(uid)
       exp_on = SqlDateTime.fmt((datetime.now() + exp))
       return {'token': access_token, 'token_type': 'Bearer', 'refresh_token': refresh_token, 'expires_on': exp_on}
-    return unproc('The given data was invalid.', credentials='These credentials do not match our records.'), 422
+    return unproc('The given data was invalid.', credentials=['These credentials do not match our records.']), 422
     
 class Logout(Resource):
   @jwt_required()

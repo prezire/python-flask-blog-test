@@ -1,0 +1,20 @@
+body, button{
+  text-transform: inherit;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.navbar{
+  padding: 30px;
+}
+.navbar-light .navbar-nav .nav-link{
+  color: #fff;
+}
+
+header{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}

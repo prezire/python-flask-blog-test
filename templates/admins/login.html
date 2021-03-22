@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block header %}Login{% endblock %}
+
+{% block content %}
+<form>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" class="form-control" id="email" aria-describedby="email" value="a@a.com">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password" value="123">
+  </div>
+  <button type="submit" class="btn btn-primary register">Login</button>
+  <a href="/admin/register" class="btn btn-default">Register</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $('.register').click(function(e){
+      e.preventDefault();
+      axios({
+          method: 'post',
+          url: `${API_BASE_URL}/api/login`,
+          headers: {}, 
+          data: {"email":$('#email').val(),"name":$('#name').val(),"password":$('#password').val(),"password_confirmation":$('#confirm-password').val()}
+        })
+        .then(result => {
+          let data = result.data;          
+          for(var i in data){
+            sessionStorage.setItem(i, data[i]);
+          }
+          window.location.href = '/posts';
+        })
+        .catch(error => console.log('error', error));
+    });
+  </script>
+{% endblock %}

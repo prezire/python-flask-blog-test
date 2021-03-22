@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block header %}Register{% endblock %}
+
+{% block content %}
+<form>
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" aria-describedby="name" value="test">
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" class="form-control" id="email" aria-describedby="email" value="a@a.com">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password" value="123">
+  </div>
+  <div class="form-group">
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" class="form-control" id="confirm-password" value="123">
+  </div>
+  <button type="submit" class="btn btn-primary register">Submit</button>
+  <a href="/admin/login" class="btn btn-default">Back</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $('.register').click(function(e){
+      e.preventDefault();
+        axios({
+          method: 'post',
+          url: `${API_BASE_URL}/api/register`,
+          headers: {}, 
+          data: {"email":$('#email').val(),"name":$('#name').val(),"password":$('#password').val(),"password_confirmation":$('#confirm-password').val()}
+        })
+        .then(result => {
+          window.location.href = '/admin/login';
+        })
+        .catch(error => console.log('error', error));
+    });
+  </script>
+{% endblock %}

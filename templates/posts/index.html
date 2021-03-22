@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header %}Posts{% endblock %}
+
+{% block content %}
+  <ul>
+    <li v-for="post in posts" :key="post.id">
+      <a :href="/api/posts/post.slug">[[ post.title ]]</a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function(){
+      new Vue({
+        mixins: [AuthMixin],
+        delimiters : ['[[', ']]'],
+        el: '#app',
+        data: {
+          posts: []
+        },
+        mounted: function(){
+          let ref = this;
+          Auth.send('api/posts', 'get').then(response => {
+            ref.posts = response.data.data;
+          });
+        }
+      });
+    });
+</script>
+{% endblock %}
